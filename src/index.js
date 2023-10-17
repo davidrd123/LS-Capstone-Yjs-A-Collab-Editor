@@ -1,35 +1,15 @@
-import Quill from 'quill'
+import * as Y from 'yjs'
+
+import CodeMirror from 'codemirror'
+
 // import { WebrtcProvider } from 'y-webrtc'
 import { WebsocketProvider } from 'y-websocket'
-// import { LeveldbPersistence } from 'y-leveldb'
 import { IndexeddbPersistence } from 'y-indexeddb'
 
-import QuillCursors from 'quill-cursors'
-import * as Y from 'yjs'
-import { QuillBinding } from 'y-quill'
 
-
-// Initialize Quill
-Quill.register('modules/cursors', QuillCursors);
-const quill = new Quill(document.querySelector('#editor'), {
-  modules: {
-    cursors: true,
-    toolbar: [
-      // adding some basic Quill content features
-      [{ header: [1, 2, false] }],
-      ['bold', 'italic', 'underline'],
-      ['image', 'code-block']
-    ],
-    history: {
-      // Local undo shouldn't undo changes
-      // from remote users
-      userOnly: true
-    }
-  },
-  placeholder: 'Start collaborating...',
-  theme: 'snow' // 'bubble' is also great
-});
-
+import { CodemirrorBinding } from 'y-codemirror'
+import 'codemirror/mode/javascript/javascript.js'
+import './style.css'
 
 // A Yjs document holds the shared document state
 const ydoc = new Y.Doc();
@@ -48,11 +28,20 @@ wsProvider.on('status', event => {
 })
 
 // Define a shared text type on the document
-const ytext = ydoc.getText('quill');
-const binding = new QuillBinding(ytext, quill);
+const yText = ydoc.getText('codemirror')
+
+const editorContainer = document.querySelector('#editor')
+
+const editor = CodeMirror(editorContainer, {
+  mode: 'javascript',
+  lineNumbers: true
+})
+
+// Bind the CodeMirror editor to a YText type.
+const binding = new CodemirrorBinding(yText, editor, wsProvider.awareness)
 
 // Save document updates to Indexeddb
-provider.on('synced', () => {
+indexeddbProvider.on('synced', () => {
   console.log('content from the database is loaded')
 })
 
