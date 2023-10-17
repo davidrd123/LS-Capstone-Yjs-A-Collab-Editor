@@ -25,4 +25,9 @@ module.exports = {
     clean: true,
     publicPath: '/',
   },
+  resolve: {
+    fallback: {
+      "assert": require.resolve("assert/"),
+    }
+  }
 };
